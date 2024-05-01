@@ -12,6 +12,7 @@
         <input type="text" id="gameid"/>
         <button id="btnJoin">Join Game</button>
     </div>
+    <div id="players"></div>
 </body>
 
 <script>
@@ -23,6 +24,7 @@
     const btnCreate = document.getElementById("btnCreate");
     const btnJoin = document.getElementById("btnJoin");
     const gameid = document.getElementById("gameid");
+    const players = document.getElementById("players");
 
     //events
     btnCreate.addEventListener("click", (e)=>{ 
@@ -59,6 +61,21 @@
                 console.log("game create with id ", response.game.id);
                 gameid.value  = response.game.id;
                 break;
+
+            case "join":
+
+                const game = response.game;
+                while(players.firstChild){
+                        players.removeChild(players.firstChild)
+                }
+                game.clients.forEach((c)=>{
+
+                    const div = document.createElement("div");
+                    div.innerText = c.clientId;
+                    div.style.backgroundColor= c.color
+                    players.appendChild(div);
+                })
+
         }
     }
 </script>

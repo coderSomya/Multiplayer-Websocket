@@ -76,14 +76,14 @@ websocket.on("request", (request)=>{
                     return;
                 }
 
-                const color = {"0": "Red", "1":"Green", "2":"Blue"}[game.clients.length]
+                const color = {"0": "red", "1":"green", "2":"blue"}[game.clients.length]
 
                 game.clients.push({
                    "clientId": client,
                    "color": color,
                 })
                 console.log("game ke clients", game.clients);
-                
+
                 payload = {
                     "method": "join",
                     "game": game,
