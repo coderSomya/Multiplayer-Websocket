@@ -76,13 +76,16 @@ websocket.on("request", (request)=>{
                     return;
                 }
 
-                const color = {"0": "red", "1":"green", "2":"blue"}[game.clients.length]
+                const mycolor = {"0": "red", "1":"green", "2":"blue"}[game.clients.length]
 
                 game.clients.push({
                    "clientId": client,
-                   "color": color,
+                   "color": mycolor,
                 })
-                console.log("game ke clients", game.clients);
+
+                if(game.clients.length==3){
+                    updateGameState();
+                }
 
                 payload = {
                     "method": "join",
@@ -97,14 +100,26 @@ websocket.on("request", (request)=>{
                 console.log("gonna join game", result.gameId);
                 break;
             case "play":
+                clientId = result.clientId;
+                gameId = result.gameId;
+                const ballId = result.ballId;
+                let color = result.color;
+
+                let state = games[gameId].state;
+
+                if(!state){
+                    state = {}
+                }
+
+                state[ballId] = color;
+                games[gameId].state = state;
                 break;
-            
 
         }
     })
 
     //generate a new client id
-    const clientId = generateRandomId(len);
+    let clientId = generateRandomId(len);
     clients[clientId]={
         "connection": connection,
     }
@@ -131,3 +146,19 @@ function generateRandomId(length) {
     return result;
 }
   
+
+function updateGameState(){
+ 
+    for (const g of Object.keys(games)){
+        const game = games[g];
+        const payload = {
+            "method": "update",
+            "game": game
+        }
+        game.clients.forEach(c=>{
+            clients[c.clientId].connection.send(JSON.stringify(payload));
+        })
+    }
+
+    setTimeout(updateGameState, 500);
+}

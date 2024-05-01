@@ -13,18 +13,22 @@
         <button id="btnJoin">Join Game</button>
     </div>
     <div id="players"></div>
+    <div id="board"></div>
 </body>
 
 <script>
     //players
     let clientId = null;
+    let playerColor = "white";
     let ws = new WebSocket("ws://localhost:3000");
+    let gameId = null;
      
      //html elements
     const btnCreate = document.getElementById("btnCreate");
     const btnJoin = document.getElementById("btnJoin");
     const gameid = document.getElementById("gameid");
     const players = document.getElementById("players");
+    const board = document.getElementById("board");
 
     //events
     btnCreate.addEventListener("click", (e)=>{ 
@@ -36,6 +40,9 @@
     })
 
     btnJoin.addEventListener("click", (e)=>{
+        if(gameId===null){
+            gameId = gameid.value;
+        }
         const payload = {
             "method": "join",
             "clientId": clientId,
@@ -61,7 +68,16 @@
                 console.log("game create with id ", response.game.id);
                 gameid.value  = response.game.id;
                 break;
-
+            case "update":
+                if(!response.game.state){
+                    return;
+                }
+                for (const b of Object.keys(response.game.state)){
+                   const color = response.game.state[b];
+                   const ballObject = document.getElementById("ball"+b);
+                   ballObject.style.background = color;
+                }
+                break;
             case "join":
 
                 const game = response.game;
@@ -74,7 +90,37 @@
                     div.innerText = c.clientId;
                     div.style.backgroundColor= c.color
                     players.appendChild(div);
+
+                    if(c.clientId === clientId){
+                        playerColor = c.color;
+                    }
                 })
+                while(board.firstChild){
+                        board.removeChild(board.firstChild)
+                }
+
+                for(let i=0; i<game.balls; i++){
+                    const b = document.createElement("button");
+                    b.id = "ball"+(i+1);
+                    b.tag = i+1;
+                    b.style.width = "150px";
+                    b.style.height = "150px";
+                    b.addEventListener("click", ()=>{
+                        b.style.backgroundColor = playerColor;
+
+                        const payload = {
+                            "method": "play",
+                            "clientId": clientId,
+                            "gameId": gameId,
+                            "ballId": b.tag,
+                            "color": playerColor
+                        }
+
+                        ws.send(JSON.stringify(payload));
+                    })
+                    board.appendChild(b);
+                }
+                break;
 
         }
     }
