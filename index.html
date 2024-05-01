@@ -56,8 +56,8 @@
                 break;
 
             case "create":
-                clientId = response.clientId;
                 console.log("game create with id ", response.game.id);
+                gameid.value  = response.game.id;
                 break;
         }
     }

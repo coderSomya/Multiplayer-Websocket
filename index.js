@@ -63,9 +63,13 @@ websocket.on("request", (request)=>{
             
             case "join":
                 // a user wants to join a game 
-                client = response.clientId;
-                gameId = response.gameId;
+                client = result.clientId;
+                gameId = result.gameId;
                 const game = games[gameId];
+
+                if(!game){
+                    console.log("game not found...");
+                }
                 
                 if(game.clients.length>=3){
                     console.log("too many players in this room already...")
@@ -78,15 +82,15 @@ websocket.on("request", (request)=>{
                    "clientId": client,
                    "color": color,
                 })
-
-                const payload = {
+                console.log("game ke clients", game.clients);
+                
+                payload = {
                     "method": "join",
                     "game": game,
                 }
 
                 game.clients.forEach((c)=>{
                     let hisConn = clients[c.clientId].connection;
-
                     hisConn.send(JSON.stringify(payload))
                 })
 
