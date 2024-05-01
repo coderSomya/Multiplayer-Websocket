@@ -8,6 +8,10 @@
 <body>
     <h1>Multiplayer game app</h1>
     <button id="btnCreate">New Game</button>
+    <div>
+        <input type="text" id="gameid"/>
+        <button id="btnJoin">Join Game</button>
+    </div>
 </body>
 
 <script>
@@ -17,6 +21,8 @@
      
      //html elements
     const btnCreate = document.getElementById("btnCreate");
+    const btnJoin = document.getElementById("btnJoin");
+    const gameid = document.getElementById("gameid");
 
     //events
     btnCreate.addEventListener("click", (e)=>{ 
@@ -27,12 +33,22 @@
         ws.send(JSON.stringify(payload));
     })
 
+    btnJoin.addEventListener("click", (e)=>{
+        const payload = {
+            "method": "join",
+            "clientId": clientId,
+            "gameId": gameid.value
+        }
+
+        ws.send(JSON.stringify(payload));
+    })
+
 
 
     ws.onmessage = (message)=>{
         const response = JSON.parse(message.data);
         console.log("--------", response);
-        
+
         switch (response.method) {
             case "connect":
                 clientId = response.client;
@@ -41,8 +57,8 @@
 
             case "create":
                 clientId = response.clientId;
-                break;
                 console.log("game create with id ", response.game.id);
+                break;
         }
     }
 </script>

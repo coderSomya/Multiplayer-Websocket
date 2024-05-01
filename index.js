@@ -35,27 +35,63 @@ websocket.on("request", (request)=>{
         //received a msg from the client
         const result = JSON.parse(message.utf8Data);
         console.log("received a message "+result);
+        let client;
+        let gameId;
+        let conn;
+        let payload;
 
         switch(result.method){
             case "create":
                //a user wants to create a new game
-               const client = result.clientId;
-               const gameId = generateRandomId(len);
+               client = result.clientId;
+               gameId = generateRandomId(len);
                games[gameId] = {
                  "id": gameId,
-                 "clients" : [client],
+                 "clients" : [],
                  "balls": 20,
                }
 
-               const payload = {
+               payload = {
                 "method": "create",
                 "game" : games[gameId],
                }
                console.log("game created with id "+ payload.game.id);
 
-               const conn = clients[clientId].connection;
+               conn = clients[clientId].connection;
                conn.send(JSON.stringify(payload));
                break;
+            
+            case "join":
+                // a user wants to join a game 
+                client = response.clientId;
+                gameId = response.gameId;
+                const game = games[gameId];
+                
+                if(game.clients.length>=3){
+                    console.log("too many players in this room already...")
+                    return;
+                }
+
+                const color = {"0": "Red", "1":"Green", "2":"Blue"}[game.clients.length]
+
+                game.clients.push({
+                   "clientId": client,
+                   "color": color,
+                })
+
+                const payload = {
+                    "method": "join",
+                    "game": game,
+                }
+
+                game.clients.forEach((c)=>{
+                    let hisConn = clients[c.clientId].connection;
+
+                    hisConn.send(JSON.stringify(payload))
+                })
+
+                console.log("gonna join game", result.gameId);
+                break;
             case "play":
                 break;
             
