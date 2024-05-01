@@ -1,3 +1,7 @@
+__The game__
+
+![Image](game.png)
+
 ## WebSocket
 WebSocket is a communication protocol that provides full-duplex communication channels over a single TCP connection. It allows for real-time, bi-directional communication between clients and servers. 
 
