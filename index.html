@@ -31,10 +31,18 @@
 
     ws.onmessage = (message)=>{
         const response = JSON.parse(message.data);
-        console.log("recieved a message from server "+response);
+        console.log("--------", response);
         
-        if(response.method === "connect"){
-            clientId = response.clientId;
+        switch (response.method) {
+            case "connect":
+                clientId = response.client;
+                console.log("client connected with id ", clientId);
+                break;
+
+            case "create":
+                clientId = response.clientId;
+                break;
+                console.log("game create with id ", response.game.id);
         }
     }
 </script>

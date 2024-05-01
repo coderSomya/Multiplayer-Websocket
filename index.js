@@ -34,7 +34,6 @@ websocket.on("request", (request)=>{
     connection.on("message", (message)=>{
         //received a msg from the client
         const result = JSON.parse(message.utf8Data);
-
         console.log("received a message "+result);
 
         switch(result.method){
@@ -52,15 +51,14 @@ websocket.on("request", (request)=>{
                 "method": "create",
                 "game" : games[gameId],
                }
+               console.log("game created with id "+ payload.game.id);
 
                const conn = clients[clientId].connection;
                conn.send(JSON.stringify(payload));
                break;
             case "play":
                 break;
-            case defualt:
-                console.log("unknown method received ");
-                break;
+            
 
         }
     })
